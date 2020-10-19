@@ -48,6 +48,7 @@ function universitySearchResults($data){
 
         if(get_post_type() == 'program'){
             array_push($searchResults['programs'], array(
+                'id' => get_the_ID(),
                 'title' => get_the_title(),
                 'permalink' => get_the_permalink()
             ));
@@ -66,6 +67,53 @@ function universitySearchResults($data){
         }
         
     }
+
+ 
+
+    if($searchResults['programs']){
+        $programsMetaQuery = array('relation' => 'OR');
+
+        foreach($searchResults['programs'] as $searchResult){
+            array_push(
+                $programsMetaQuery,
+                array(
+                    'key' => 'related_programs',
+                    'compare' => 'LIKE',
+                    'value' => '"'. $searchResult['id'] . '"'
+                )
+                );
+        }
+        $relatedProgramsQuery = new WP_Query(array(
+            'post_type' => array('professor', 'event'),
+            'meta_query' => $programsMetaQuery
+            ));
+    
+        while($relatedProgramsQuery->have_posts()){
+            $relatedProgramsQuery->the_post();
+            if(get_post_type() == 'professor'){
+                array_push($searchResults['professors'], array(
+                    'title' => get_the_title(),
+                    'permalink' => get_the_permalink(),
+                    'image' => get_the_post_thumbnail_url(0, 'professorLandscape')
+                ));
+            }
+            if(get_post_type() == 'event'){
+                $eventDate = new DateTime(get_field('event_date'));
+                $description = wp_trim_words( get_the_content(), 18);
+                array_push($searchResults['events'], array(
+                    'title' => get_the_title(),
+                    'permalink' => get_the_permalink(),
+                    'month' => $eventDate->format('M'),
+                    'day' => $eventDate->format('d'),
+                    'description' => $description
+                ));
+            }
+        }
+        $searchResults['professors'] = array_values(array_unique($searchResults['professors'], SORT_REGULAR));
+        $searchResults['events'] = array_values(array_unique($searchResults['events'], SORT_REGULAR));
+
+    }
+  
     return $searchResults;
 }
 add_action("rest_api_init", "registerUniversityRoute");

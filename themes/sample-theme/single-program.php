@@ -20,7 +20,7 @@ page_banner();
     </div>
 
     <div class="container container--narrow page-section">
-        <?php the_content(); ?>
+        <?php the_field('main_body_content');?>
     </div>
     <?php 
           $relatedProfessors = new WP_Query(array(

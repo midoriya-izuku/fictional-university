@@ -19,7 +19,7 @@
 
     //Program Post Type
     register_post_type( 'program', array(
-        'supports' => array('title', 'editor'),
+        'supports' => array('title'),
         'has_archive' => true,
         'rewrite' => array('slug' => 'programs'),
         'public' => true,
