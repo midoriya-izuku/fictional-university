@@ -32,7 +32,7 @@ function page_banner($args = NULL) {
 </div>
 <?php
 }
-function load_style(){
+function load_scripts_and_styles(){
     wp_enqueue_script('bundled-js', get_theme_file_uri('/js/scripts-bundled.js'), NULL, '1.0', true);
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
     wp_enqueue_style('custom-font', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
@@ -45,7 +45,7 @@ function load_style(){
 function features_setup(){
     register_nav_menu( 'footerMenuLocation1', 'Footer Menu Location One');
     register_nav_menu( 'footerMenuLocation2', 'Footer Menu Location Two');
-    add_theme_support('title-tag');
+    add_theme_support( 'title-tag' );
     add_theme_support('post-thumbnails');
     add_image_size('professorLandscape', 400, 260, false);
     add_image_size('professorPotrait', 480, 650, true);
@@ -81,11 +81,59 @@ function university_custom_rest() {
         'get_callback' => function() { return get_the_author();}
     ));
 }
-add_action('wp_enqueue_scripts','load_style');
 
+function redirectSubs(){
+    $currentUser = wp_get_current_user();
+    if(count($currentUser->roles) == 1 AND $currentUser->roles[0] == 'subscriber'){
+        wp_redirect(site_url('/'));
+        exit;
+    }
+}
+
+function hideAdminBar(){
+    $currentUser = wp_get_current_user();
+    if(count($currentUser->roles) == 1 AND $currentUser->roles[0] == 'subscriber'){
+        show_admin_bar(false);
+    }
+}
+
+function customHeaderUrl(){
+    return esc_url(site_url('/'));
+}
+
+function customHeaderTitleUrl(){
+    return get_bloginfo('name');
+}
+
+function customLoginCSS(){
+    wp_enqueue_style('custom-font', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
+    wp_enqueue_style('universal_style_sheet', get_stylesheet_uri());
+}
+//load scripts and styles
+add_action('wp_enqueue_scripts','load_scripts_and_styles');
+
+//set up all the features of the site
 add_action('after_setup_theme', 'features_setup');
 
+//custom query for posts to 
 add_action('pre_get_posts', 'custom_query');
 
+//search api for the site
 add_action('rest_api_init', 'university_custom_rest');
+
+//redirect subs to front end page
+add_action('admin_init', 'redirectSubs');
+
+//hide admin bar for subs
+add_action('wp_loaded', 'hideAdminBar');
+
+//custom css for login screen
+add_action('login_enqueue_scripts', 'customLoginCSS');
+
+//change login screen header url
+add_filter('login_headerurl', 'customHeaderUrl');
+
+//change login screen title
+add_filter('login_headertitle', 'customHeaderTitleUrl');
+
 ?>

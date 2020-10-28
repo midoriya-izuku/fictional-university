@@ -74,7 +74,7 @@ class Search{
                     ${results.campuses.length>0 ? ` <ul class="link-list min-list">
                     ${results.campuses.map(result => `<li> <a href="${result.permalink}">${result.title} </a></li>`)}
                     </ul>`:
-                    `<p> No related programs found. <a href="${universityData.root_url}/campuses">View all Campuses</a> </p>`}
+                    `<p> No related campuses found. <a href="${universityData.root_url}/campuses">View all Campuses</a> </p>`}
                     <h2 class="search-overlay__section-title">Events</h2>
                     ${results.events.length>0 ? `
                     ${results.events.map(result => `
@@ -94,7 +94,7 @@ class Search{
                         </div>
                     `)}
                         `:
-                    `<p> No related programs found. <a href="${universityData.root_url}/campuses">View all Campuses</a> </p>`}
+                    `<p> No related events found. <a href="${universityData.root_url}/campuses">View all Campuses</a> </p>`}
                    
                 </div>
             </div>

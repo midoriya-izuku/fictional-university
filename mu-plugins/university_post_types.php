@@ -3,6 +3,8 @@
  function university_post_types() {
     //Event Post Type
     register_post_type( 'event', array(
+        'capability_type' => 'event',
+        'map_meta_cap' => true,
         'supports' => array('title', 'editor', 'excerpt'),
         'has_archive' => true,
         'rewrite' => array('slug' => 'events'),
