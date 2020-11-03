@@ -38,7 +38,8 @@ function load_scripts_and_styles(){
     wp_enqueue_style('custom-font', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
     wp_enqueue_style('universal_style_sheet', get_stylesheet_uri());
     wp_localize_script('bundled-js', 'universityData', array(
-        'root_url' => get_site_url()
+        'root_url' => get_site_url(),
+        'nonce' => wp_create_nonce('wp_rest')
     ) );
 }
 
@@ -80,6 +81,10 @@ function university_custom_rest() {
     register_rest_field( 'post', 'authorName', array(
         'get_callback' => function() { return get_the_author();}
     ));
+
+    register_rest_field( 'note', 'userNotesCount', array(
+        'get_callback' => function() { return count_user_posts( get_current_user_id(), 'note');}
+    ));
 }
 
 function redirectSubs(){
@@ -109,6 +114,22 @@ function customLoginCSS(){
     wp_enqueue_style('custom-font', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
     wp_enqueue_style('universal_style_sheet', get_stylesheet_uri());
 }
+
+function changeNoteStatus($data, $postarr){
+    if($data['post_type'] == 'note'){
+        if(count_user_posts( get_current_user_id(), 'note') > 5 AND !$postarr['ID']){
+            die("Note limit reached");
+        }
+        $data['post_title'] = sanitize_text_field($data['post_title']);
+        $data['post_content'] = sanitize_textarea_field($data['post_content']);
+        
+    }
+
+    if($data['post_type'] == 'note' AND $data['post_status'] != 'trash'){
+        $data['post_status'] = 'private';
+    }
+    return $data;
+}
 //load scripts and styles
 add_action('wp_enqueue_scripts','load_scripts_and_styles');
 
@@ -136,4 +157,6 @@ add_filter('login_headerurl', 'customHeaderUrl');
 //change login screen title
 add_filter('login_headertitle', 'customHeaderTitleUrl');
 
+//set note status to private
+add_filter('wp_insert_post_data', 'changeNoteStatus', 10, 2);
 ?>

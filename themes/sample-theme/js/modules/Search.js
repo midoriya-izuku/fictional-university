@@ -94,7 +94,7 @@ class Search{
                         </div>
                     `)}
                         `:
-                    `<p> No related events found. <a href="${universityData.root_url}/campuses">View all Campuses</a> </p>`}
+                    `<p> No related events found. <a href="${universityData.root_url}/campuses">View all Events</a> </p>`}
                    
                 </div>
             </div>
